@@ -24,9 +24,14 @@ async def main_window():
 
 @app.post("/backend.api/upload")
 async def mp4ToMp3(file: UploadFile = File(...)):
-    with open(file.filename, 'wb') as mp4_file:
+    name_file = file.filename
+    name_without_format = name_file[:len(name_file)-4]
+    if name_file[-4:] != ".mp4":
+        raise Unikformaterror(name=name_file[-4:])
+    with open(f"unuseful_cache/{file.filename}", 'wb') as mp4_file:
         content = await file.read()
         mp4_file.write(content)
         mp4_file.close() 
-    name_file = file.filename
-    mp3(name=name_file[len(name_file)-4:])
+    
+    mp3(name=name_without_format)
+    return FileResponse(f"unuseful_cache/{name_without_format}.mp3", filename=f"{name_without_format}.mp3", media_type="application/octet-stream")
