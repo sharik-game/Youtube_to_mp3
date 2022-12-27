@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+    <title>Test</title>
+    <meta charet="utf-8" />
+    <!-- <script src="./js/test.js/"></script> -->
+</head>
+<body>
+    
+    <form id="main_form" action="/backend.api/upload/" enctype="multipart/form-data" method="post">
+        <input id="file_input" name="file" type="file">
+        <button type="submit">Upload</button>
+    </form>
+    <!--
+    <script>
+        const fileInput = document.getElementById("file_input")
+        const form = document.getElementById("main_form")
+        
+        function handleSubmit(event) {
+            event.preventDefault()
+            const formData = new FormData()
+            const file = fileInput.files[0]
+            console.log(file)
+            formData.append("file", file, file.filename)
+            console.log(formData.getAll("file"))
+            fetch('http://localhost:8000/backend/api/upload', {
+                method: "POST",
+                headers: {"Content-Type": "multipart/form-data"},
+                body: formData,
+            })
+
+        }
+        form.addEventListener('submit', handleSubmit)
+    </script>
+    -->
+</body>
+
+
+</html>
