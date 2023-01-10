@@ -5,12 +5,29 @@ from fastapi import BackgroundTasks, FastAPI, File, Header, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from mp4_to_mp3 import mp3
 from files_del import delete_file
-from description import OpenAPI_desc
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s %(asctime)s %(message)s")
+description = """
+# YouTube_to_mp3
+This online converter can:  
+* **Convert youtube video to mp3 file**  
+* **Convert mp4 file to mp3 file**    
+# For developers
+I'm begginer web developer, that's why I will be glad to hear your suggestions
+## P.S
+_Website is still under development_  
+But you can use converter mp4 to mp3
+"""
+tags_metadata = [
+    {
+        "name": "upload",
+        "description": "These requests were needed for mp4 to mp3 converter",
+    }
+]
 app = FastAPI(
     title="YoTube to mp3 online converter",
-    description=OpenAPI_desc.description,
-    version="0.1"
+    description=description,
+    version="0.1",
+    openapi_tags=tags_metadata
 )
 
 def write_in_log(ip_address: str, user_agent, request: dict):
@@ -21,7 +38,7 @@ def write_in_log(ip_address: str, user_agent, request: dict):
     body = request["body"]
     with open("log.txt", "a") as log_file:
         log_file.write(f"Url: {url}, Method: {method}, IP: {ip_address}, User-Agent: {user_agent}, Date: {date_now_str}, Body: {body}\n")
-    logging.info("Writing ещ logs was successful")
+    logging.info("Writing in logs was successful")
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
@@ -39,16 +56,24 @@ async def format_exception(request: Request, exc: Unikformaterror):
         status_code = 456,
         content={"message": f"Unsuppoted format {exc.name[-4:]}. I support only .mp4 format"}
     )
-@app.get("/")
+
+@app.get("/", summary="Main site page", tags=["main"])
+async def main_page(request: Request, background_task: BackgroundTasks, user_agent: str | None = Header(default=None)):
+    client_host = request.client.host
+    background_task.add_task(write_in_log, ip_address=client_host, user_agent=user_agent, request={"url": "/", "method": "GET", "body": None})
+    with open("frontend/index.html", "r") as main_file:
+        answer = main_file.read()
+    return HTMLResponse(answer)
+@app.get("/upload", summary="Return HTML page for mp4 to mp3 converter", tags=["upload"])
 async def main_window(request: Request, background_tasks: BackgroundTasks, user_agent: str | None = Header(default=None)):
     client_host = request.client.host
-    background_tasks.add_task(write_in_log, ip_address=client_host, user_agent=user_agent, request={"url": "/", "method": "GET", "body": None})
-    with open("frontend/index.html", "r") as file:
+    background_tasks.add_task(write_in_log, ip_address=client_host, user_agent=user_agent, request={"url": "/upload/", "method": "GET", "body": None})
+    with open("frontend/upload.html", "r") as file:
         answer = file.read()
     return HTMLResponse(answer)
 
 
-@app.post("/backend.api/upload")
+@app.post("/backend.api/upload", summary="Upload user file. Convert mp4 to mp3 using moviepy. And returns mp3 file", tags=["upload"])
 async def mp4ToMp3(background_task: BackgroundTasks, request: Request, user_agent: str | None = Header(default=None), file: UploadFile = File(...)):
     delete_file()
     client_host = request.client.host
