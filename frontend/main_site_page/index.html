@@ -3,30 +3,58 @@
 <head>
     <title>Simple converter</title>
     <meta charet="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap">
+    <link rel="stylesheet" href="/frontend/main_site_page/styles.css" />
 </head>
 <body>
-    <div class="root-class" id="qwerty">
-        <div class="choice">
-            <h1>Simple converter</h1>
-            <form id="list">
-                <ul>
-                <li>Please, choose the Youtube to mp3 if you have a link and you want to get .mp3 file</li>
-                <li>And Choose mp4 to mp3 if you have mp4 file and you want to get .mp3 file</li>
-                <label>
-                    <button id='first-button'>Youtube to mp3</button>
-                    <button id='second-button'>mp4 to mp3</button>
-                </label>
-            </ul>
-            </form>
+    <header>
+        <div class="header-container">
+            <!-- <img class="logo" src="/frontend/main_site_page/logo.png" width="150" height="100" alt="logo"> -->
+            <p class="header-text">Simple converter</p>
+            <nav class="links">
+                <a class="link" href="#Conveting">Start converting</a>
+                <a class="link" href="#Benifits">What is this converter</a>
+                <a class="link" href="#Converter">Other information</a>
+            </nav>
         </div>
-        <article class="useful_info">
-            <p>This is only example Youtube link to mp3 converter. This conveter was written in <a href="https://fastapi.tiangolo.com" target="_blank">fastapi.</a><br>
-            Look at how this site set up you can <a href="http://localhost:8000/docs" target="_blank">in openapi docs.</a><br>
-            If you have questions you can send them in <a href="https://github.com/sharik-game" target="_blank">my github.</a></p>
-        </article>
-
-        <script src="/frontend/main_site_page/main_page.js"></script>
-    </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="choice"><a name="Converting">
+                <h1>How to use</h1>
+                <form id="list">
+                    <ul>
+                    <li>Please, choose the Youtube to mp3 if you have a link and you want to get .mp3 file</li>
+                    <li>And Choose mp4 to mp3 if you have mp4 file and you want to get .mp3 file</li>
+                    <label>
+                        <button id='first-button'>Youtube to mp3</button>
+                        <button id='second-button'>mp4 to mp3</button>
+                    </label>
+                </ul>
+                </form>
+            </a></div>
+            <article class="Info"><a name="Benifits">
+                <h2>Benifits of our converter</h2>
+                <ul>
+                    <li>This is a <b>free</b> converter</li>
+                    <li>It doesn't need <b>registration</b></li>
+                    <li>Conversion takes place without loss of words</li>
+                    <li>Your files are <i>only on this server</i></li>
+                </ul>
+            </a></article>
+            <article class="useful_info"><a name="Converter">
+                <h2 class="last-h2">Other information</h2>
+                <p>This is only example Youtube link to mp3 converter.<br>This conveter was written in <a href="https://fastapi.tiangolo.com" target="_blank">fastapi.</a><br>
+                Look at how this site set up you can <a href="http://localhost:8000/docs" target="_blank">in openapi docs.</a><br>
+                If you have questions you can send them in <a href="https://github.com/sharik-game" target="_blank">my github.</a></p>
+            </a></article>
+        </div>
+    </main>
+    <footer></footer>
+    <script src="/frontend/main_site_page/main_page.js"></script>
 </body>
 
 </html>

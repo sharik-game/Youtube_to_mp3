@@ -4,12 +4,18 @@
 <head>
     <title>Mp4 to mp3 converter</title>
     <meta charet="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/frontend/upload2/styles.css">
 </head>
 <body>
-    <form id="main_form" action="/backend.api/upload/" enctype="multipart/form-data" method="post"> 
-        <input id="file_input" name="file" type="file">
-        <button type="submit">Upload</button>
-    </form>
+    <main>
+        <div class="container">
+            <form id="main_form" action="/backend.api/upload/" enctype="multipart/form-data" method="post"> 
+                <input id="file_input" name="file" type="file">
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+    </main>
     <script src="/frontend/upload2/upload1.js"></script> 
     <!-- <script>src="upload1.js"</script> -->
 </body>
