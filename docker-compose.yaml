@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+
+  # nginx service
+  web:
+    container_name: "web"
+    image: nginx:alpine
+    # depends_on:
+      # - app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d
+      - ./frontend:/frontend
+
+  # application service
+  
+  app:
+    container_name: "app"
+    build: .
+    command: bash -c 'uvicorn main:app --host 0.0.0.0'
+    ports:
+      - "8000:8000"
+    # networks:
+    #   - custom

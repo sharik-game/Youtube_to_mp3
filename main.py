@@ -3,9 +3,24 @@ import logging
 import time
 from fastapi import BackgroundTasks, FastAPI, File, Header, Request, UploadFile, Response
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
+from return_statics_files import router
+from proglog.proglog import ProgressBarLogger
 from mp4_to_mp3 import mp3
 from files_del import delete_file
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s %(asctime)s %(message)s")
+
+
+class MyBarLogger(ProgressBarLogger):
+    def callback(self, **changes):
+        # Every time the logger message is updated, this function is called with
+        # the `changes` dictionary of the form `parameter: new value`.
+        for (parameter, value) in changes.items():
+            print('Parameter %s is now %s' % (parameter, value))
+    def bars_callback(self, bar, attr, value, old_value=None):
+        # Every time the logger progress is updated, this function is called        
+        percentage = (value / self.bars[bar]['total']) * 100
+        # print(int(percentage))
+logger = MyBarLogger()
 description = """
 # YouTube to mp3
 This online converter can:  
@@ -28,12 +43,12 @@ tags_metadata = [
     }
 ]
 app = FastAPI(
-    title="YoTube to mp3 online converter",
+    title="YouTube to mp3 online converter",
     description=description,
     version="0.1",
     openapi_tags=tags_metadata
 )
-
+app.include_router(router)
 def write_in_log(ip_address: str, user_agent, request: dict):
     date_now = datetime.datetime.now()
     date_now_str: str = date_now.strftime('%m/%d/%y %H:%M:%S')
@@ -68,26 +83,7 @@ async def main_page(request: Request, background_task: BackgroundTasks, user_age
     with open("frontend/main_site_page/index.html", "r") as main_file:
         answer = main_file.read()
     return HTMLResponse(answer)
-@app.get("/frontend/main_site_page/main_page.js", tags=["main"])
-async def read_main_js():
-    with open("frontend/main_site_page/main_page.js", "r") as main_pagejs:
-        ans = main_pagejs.read()
-    return Response(content=ans, media_type="text/javascript")
-@app.get("/frontend/main_site_page/styles.css", tags=["main"])
-async def read_main_css():
-    with open("frontend/main_site_page/styles.css", "r") as main_pagecss:
-        ans = main_pagecss.read()
-    return Response(content=ans, media_type="text/css")
-@app.get("/frontend/main_site_page/red-youtube-logo-png-xl.png", tags=["main"])
-async def read_first_button_png():
-    with open("frontend/main_site_page/red-youtube-logo-png-xl.png", "rb") as file:
-        ans = file.read()
-    return Response(content=ans, media_type="image/png")
-@app.get("/frontend/main_site_page/i.png", tags=["main"])
-async def read_second_button_png():
-    with open("frontend/main_site_page/i.png", "rb") as file:
-        ans = file.read()
-    return Response(content=ans, media_type="image/png")
+
     
 @app.get("/upload", summary="Return HTML page for mp4 to mp3 converter", tags=["upload"])
 async def main_window(request: Request, background_tasks: BackgroundTasks, user_agent: str | None = Header(default=None)):
@@ -96,16 +92,7 @@ async def main_window(request: Request, background_tasks: BackgroundTasks, user_
     with open("frontend/upload2/upload.html", "r") as file:
         answer = file.read()
     return HTMLResponse(answer)
-@app.get("/frontend/upload2/styles.css", tags=["upload"])
-async def read_upload_stules():
-    with open("frontend/upload2/styles.css", "r") as main_styles:
-        ans = main_styles.read()
-    return Response(content=ans, media_type="text/css")
-@app.get("/frontend/upload2/upload1.js", tags=["upload"])
-async def read_upload_js():
-    with open("frontend/upload2/upload1.js", "r") as upload_js:
-        ans = upload_js.read()
-    return Response(content=ans, media_type="text/javascript")
+
 
 @app.post("/backend.api/upload", summary="Upload user file. Convert mp4 to mp3 using moviepy. And returns mp3 file", tags=["upload"])
 async def mp4ToMp3(background_task: BackgroundTasks, request: Request, user_agent: str | None = Header(default=None), file: UploadFile = File(...)):
@@ -120,5 +107,5 @@ async def mp4ToMp3(background_task: BackgroundTasks, request: Request, user_agen
         content = await file.read()
         mp4_file.write(content)
         mp4_file.close() 
-    mp3(name=name_without_format)
+    mp3(logger=logger, name=name_without_format)
     return FileResponse(f"unuseful_cache/{name_without_format}.mp3", filename=f"{name_without_format}.mp3", media_type="application/octet-stream")

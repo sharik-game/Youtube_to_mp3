@@ -8,7 +8,7 @@ function second_button(event){
     event.preventDefault()
     // window.location.replace("http://localhost:8000/upload")
     // history.pushState({}, null, "http://localhost:8000/upload")
-    window.location.href = 'http://localhost:8000/upload'
+    window.location.href = 'http://localhost:8080/upload/'
     /*
     fetch('http://localhost:8000/upload')
     .then((response) => {
