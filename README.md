@@ -6,12 +6,10 @@ It can be useful when you don't need image.
 ---
 ## Getting starting
 - download this repo
-- ```python -m venv venv```
-- activate your venv
-- ```pip install -r requirements.txt```
-- ```uvicorn main:app```  
+- run docker
+- ```docker-compose up --build```  
 **And then in browser**
-- http://localhost:8000
+- http://localhost:8080
   
 ---
   

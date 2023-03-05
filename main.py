@@ -3,7 +3,6 @@ import logging
 import time
 from fastapi import BackgroundTasks, FastAPI, File, Header, Request, UploadFile, Response
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
-from return_statics_files import router
 from proglog.proglog import ProgressBarLogger
 from mp4_to_mp3 import mp3
 from files_del import delete_file
@@ -45,10 +44,9 @@ tags_metadata = [
 app = FastAPI(
     title="YouTube to mp3 online converter",
     description=description,
-    version="0.1",
+    version="0.1.1",
     openapi_tags=tags_metadata
 )
-app.include_router(router)
 def write_in_log(ip_address: str, user_agent, request: dict):
     date_now = datetime.datetime.now()
     date_now_str: str = date_now.strftime('%m/%d/%y %H:%M:%S')
@@ -75,7 +73,7 @@ async def format_exception(request: Request, exc: Unikformaterror):
         status_code = 456,
         content={"message": f"Unsuppoted format {exc.name[-4:]}. I support only .mp4 format"}
     )
-
+"""
 @app.get("/", summary="Main site page", tags=["main"])
 async def main_page(request: Request, background_task: BackgroundTasks, user_agent: str | None = Header(default=None)):
     client_host = request.client.host
@@ -92,7 +90,7 @@ async def main_window(request: Request, background_tasks: BackgroundTasks, user_
     with open("frontend/upload2/upload.html", "r") as file:
         answer = file.read()
     return HTMLResponse(answer)
-
+"""
 
 @app.post("/backend.api/upload", summary="Upload user file. Convert mp4 to mp3 using moviepy. And returns mp3 file", tags=["upload"])
 async def mp4ToMp3(background_task: BackgroundTasks, request: Request, user_agent: str | None = Header(default=None), file: UploadFile = File(...)):
