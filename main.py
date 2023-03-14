@@ -1,25 +1,17 @@
 import datetime
 import logging
 import time
+import os
 from fastapi import BackgroundTasks, FastAPI, File, Header, Request, UploadFile, Response
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
-from proglog.proglog import ProgressBarLogger
+from pydantic import BaseModel
 from mp4_to_mp3 import mp3
 from files_del import delete_file
+from db import Redis_endpoints
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s %(asctime)s %(message)s")
 
 
-class MyBarLogger(ProgressBarLogger):
-    def callback(self, **changes):
-        # Every time the logger message is updated, this function is called with
-        # the `changes` dictionary of the form `parameter: new value`.
-        for (parameter, value) in changes.items():
-            print('Parameter %s is now %s' % (parameter, value))
-    def bars_callback(self, bar, attr, value, old_value=None):
-        # Every time the logger progress is updated, this function is called        
-        percentage = (value / self.bars[bar]['total']) * 100
-        # print(int(percentage))
-logger = MyBarLogger()
+
 description = """
 # YouTube to mp3
 This online converter can:  
@@ -35,10 +27,6 @@ tags_metadata = [
     {
         "name": "upload",
         "description": "These requests were needed for mp4 to mp3 converter",
-    },
-    {
-        "name": "main",
-        "description": "These requests were needed for **main site page**"
     }
 ]
 app = FastAPI(
@@ -47,15 +35,19 @@ app = FastAPI(
     version="0.1.1",
     openapi_tags=tags_metadata
 )
+db = Redis_endpoints()
+class Message(BaseModel):
+    message: str
 def write_in_log(ip_address: str, user_agent, request: dict):
     date_now = datetime.datetime.now()
     date_now_str: str = date_now.strftime('%m/%d/%y %H:%M:%S')
     url: str = request["url"]
     method: str = request["method"]
     body = request["body"]
-    with open("log.txt", "a") as log_file:
+    with open("log.log", "a") as log_file:
         log_file.write(f"Url: {url}, Method: {method}, IP: {ip_address}, User-Agent: {user_agent}, Date: {date_now_str}, Body: {body}\n")
     logging.info("Writing in logs was successful")
+
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
@@ -71,39 +63,34 @@ class Unikformaterror(Exception):
 async def format_exception(request: Request, exc: Unikformaterror):
     return JSONResponse(
         status_code = 456,
-        content={"message": f"Unsuppoted format {exc.name[-4:]}. I support only .mp4 format"}
+        content={"message": f"Unsuppoted format {exc.name}. I support only .mp4 format"}
     )
-"""
-@app.get("/", summary="Main site page", tags=["main"])
-async def main_page(request: Request, background_task: BackgroundTasks, user_agent: str | None = Header(default=None)):
-    client_host = request.client.host
-    background_task.add_task(write_in_log, ip_address=client_host, user_agent=user_agent, request={"url": "/", "method": "GET", "body": None})
-    with open("frontend/main_site_page/index.html", "r") as main_file:
-        answer = main_file.read()
-    return HTMLResponse(answer)
 
-    
-@app.get("/upload", summary="Return HTML page for mp4 to mp3 converter", tags=["upload"])
-async def main_window(request: Request, background_tasks: BackgroundTasks, user_agent: str | None = Header(default=None)):
-    client_host = request.client.host
-    background_tasks.add_task(write_in_log, ip_address=client_host, user_agent=user_agent, request={"url": "/upload/", "method": "GET", "body": None})
-    with open("frontend/upload2/upload.html", "r") as file:
-        answer = file.read()
-    return HTMLResponse(answer)
-"""
+@app.post(
+        "/backend.api/upload", 
+        responses = {
+            200: {"description": "`input .mp4 file`: `output .mp3 file`"},
+            456:  {"model": Message, "description": "Unsuppoted format"}
+        },
+        summary="Upload user file. Convert mp4 to mp3 using moviepy. And returns mp3 file", 
+        tags=["upload"],)
+async def Mp4ToMp3(background_task: BackgroundTasks, request: Request, user_agent: str | None = Header(default=None), token: str = Header(default="test-token"), file: UploadFile = File(...)):
+    """
+    - `Mp4 file in input`
 
-@app.post("/backend.api/upload", summary="Upload user file. Convert mp4 to mp3 using moviepy. And returns mp3 file", tags=["upload"])
-async def mp4ToMp3(background_task: BackgroundTasks, request: Request, user_agent: str | None = Header(default=None), file: UploadFile = File(...)):
+    - `Mp3 file in output`
+    """
     delete_file()
     client_host = request.client.host
-    name_file = file.filename
+    name_file: str = file.filename
     background_task.add_task(write_in_log, ip_address=client_host, user_agent=user_agent, request={"url": "/backend.api/upload", "method": "POST", "body": name_file})
-    name_without_format = name_file[:len(name_file)-4]
-    if name_file[-4:] != ".mp4":
-        raise Unikformaterror(name=name_file[-4:])
+    file_typle = os.path.splitext(name_file)
+    name_without_format: str = file_typle[0]
+    if  file_typle[1] != ".mp4":
+        raise Unikformaterror(name=file_typle[1])
     with open(f"unuseful_cache/{file.filename}", 'wb') as mp4_file:
         content = await file.read()
         mp4_file.write(content)
         mp4_file.close() 
-    mp3(logger=logger, name=name_without_format)
+    mp3(db, token, name=name_without_format)
     return FileResponse(f"unuseful_cache/{name_without_format}.mp3", filename=f"{name_without_format}.mp3", media_type="application/octet-stream")

@@ -3,6 +3,9 @@ import logging
 import os
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:   %(name)s %(asctime)s %(message)s")
 def delete_file():
+    """
+    Delete files from _unuseful_cache_
+    """
     try:
         my_dir = "unuseful_cache"
         for files in os.listdir(my_dir):

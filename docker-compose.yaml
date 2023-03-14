@@ -21,5 +21,10 @@ services:
     command: bash -c 'uvicorn main:app --host 0.0.0.0'
     ports:
       - "8000:8000"
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    # command: redis-server --slaveof redis-master 6379 
     # networks:
     #   - custom
