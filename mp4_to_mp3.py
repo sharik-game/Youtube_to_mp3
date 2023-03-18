@@ -1,7 +1,7 @@
 import logging
 import moviepy.editor 
 from proglog.proglog import ProgressBarLogger
-from db import Redis_endpoints
+from redis_db.db import Redis_endpoints
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s %(asctime)s %(message)s")
 class MyBarLogger(ProgressBarLogger):
     def callback(self, **changes):

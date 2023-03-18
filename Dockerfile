@@ -4,7 +4,7 @@
 FROM python:3.11-slim
 
 # set work directory
-# WORKDIR .
+# WORKDIR /app
 
 # install dependencies
 COPY requirements.txt .

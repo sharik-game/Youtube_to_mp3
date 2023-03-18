@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from pydantic import BaseModel
 from mp4_to_mp3 import mp3
 from files_del import delete_file
-from db import Redis_endpoints
+from redis_db.db import Redis_endpoints
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s %(asctime)s %(message)s")
 
 

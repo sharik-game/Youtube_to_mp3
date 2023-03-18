@@ -1,4 +1,3 @@
-# import shutil
 import logging
 import os
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:   %(name)s %(asctime)s %(message)s")
