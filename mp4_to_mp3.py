@@ -29,8 +29,6 @@ def mp3(db: Redis_endpoints, token: str, name: str):
         logging.warning("Redis begin")
         db.set_value("token", token)
         logging.info(db.get_value("token"))
-        db.set_value("token", token + " test")
-        logging.info(db.get_value("token"))
         logging.warning("Redis end")
     except Exception as ex:
         logging.error("Some error", exc_info=True)

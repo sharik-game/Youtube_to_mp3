@@ -14,14 +14,17 @@ services:
       - ./frontend:/frontend
 
   # application service
-  
   app:
     container_name: "app"
     build: .
     command: bash -c 'uvicorn main:app --host 0.0.0.0'
     ports:
       - "8000:8000"
+    environment:
+      - Salt=qwerty
+  # redis service
   redis:
+    container_name: "redis_db"
     image: redis:alpine
     ports:
       - "6379:6379"
